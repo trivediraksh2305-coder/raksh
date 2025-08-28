@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ServicePro - Service Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fb;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: var(--primary);
+            color: white;
+            padding: 20px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sidebar-header h2 i {
+            color: var(--success);
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+        
+        .sidebar-menu li {
+            padding: 10px 20px;
+            margin: 5px 0;
+            border-left: 4px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-menu li:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid var(--success);
+        }
+        
+        .sidebar-menu li.active {
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid var(--success);
+        }
+        
+        .sidebar-menu a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 30px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+        
+        .search-box input {
+            border: none;
+            outline: none;
+            padding: 5px;
+            width: 100%;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        /* Page Title */
+        .page-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .page-title h1 {
+            font-size: 24px;
+            color: var(--dark);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        /* Add Service Form */
+        .add-service-form {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+        
+        .form-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .form-header h2 {
+            font-size: 20px;
+        }
+        
+        .toggle-form {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--gray);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--light-gray);
+            border-radius: 6px;
+        }
+        
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        /* Services Grid */
+        .services-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .services-header h2 {
+            font-size: 20px;
+        }
+        
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .service-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .service-image {
+            height: 160px;
+            background-color: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+        }
+        
+        .service-info {
+            padding: 20px;
+        }
+        
+        .service-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        
+        .service-title h3 {
+            font-size: 18px;
+            margin-right: 10px;
+        }
+        
+        .service-price {
+            font-weight: bold;
+            color: var(--primary);
+            white-space: nowrap;
+        }
+        
+        .service-description {
+            color: var(--gray);
+            margin-bottom: 15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .service-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--light-gray);
+        }
+        
+        .service-duration {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--gray);
+            font-size: 14px;
+        }
+        
+        .service-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--gray);
+            font-size: 16px;
+        }
+        
+        .action-btn:hover {
+            color: var(--primary);
+        }
+        
+        .status-toggle {
+            position: relative;
+            display: inline-block;
+            width: 45px;
+            height: 22px;
+        }
+        
+        .status-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--success);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+        
+        /* Filters */
+        .filters {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .filter-select {
+            padding: 8px 15px;
+            border-radius: 6px;
+            border: 1px solid var(--light-gray);
+            background: white;
+        }
+        
+        .search-filter {
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 8px 15px;
+            border-radius: 6px;
+            border: 1px solid var(--light-gray);
+            width: 250px;
+        }
+        
+        .search-filter input {
+            border: none;
+            outline: none;
+            padding: 5px;
+            width: 100%;
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 70px;
+            }
+            
+            .sidebar-header h2 span, 
+            .sidebar-menu li a span {
+                display: none;
+            }
+            
+            .sidebar-header h2 {
+                justify-content: center;
+            }
+            
+            .sidebar-menu li {
+                text-align: center;
+                padding: 15px 10px;
+            }
+            
+            .sidebar-menu li a i {
+                font-size: 20px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .filters {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .filter-group {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .search-filter {
+                width: 100%;
+            }
+            
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-concierge-bell"></i> <span>ServicePro</span></h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="Dashboard.html"><i class="fas fa-home"></i> <span>Dashboard</span></a></li>
+                <li><a href="Appointments.html"><i class="fas fa-calendar-alt"></i> <span>Appointments</span></a></li>
+                <li class="active"><a href="Services.html"><i class="fas fa-tools"></i> <span>Services</span></a></li>
+                <li><a href="Clients.html"><i class="fas fa-users"></i> <span>Clients</span></a></li>
+                <li><a href="Analytics.html"><i class="fas fa-chart-line"></i> <span>Analytics</span></a></li>
+                <li><a href="Earnings.html"><i class="fas fa-money-bill-wave"></i> <span>Earnings</span></a></li>
+                <li><a href="Settings.html"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+                <li><a href="login.html"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search services...">
+                </div>
+                <div class="user-profile">
+                    <div class="notifications">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="user-info">
+                        <span>John Doe</span>
+                    </div>
+                    <div class="user-img">JD</div>
+                </div>
+            </div>
+
+            <!-- Page Title -->
+            <div class="page-title">
+                <h1>Service Management</h1>
+                <div class="action-buttons">
+                    <button class="btn btn-outline">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                </div>
+            </div>
+
+            <!-- Add Service Form -->
+            <div class="add-service-form">
+                <div class="form-header">
+                    <h2>Add New Service</h2>
+                    <button class="toggle-form" id="toggleForm">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+                <form id="serviceForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="serviceName">Service Name</label>
+                            <input type="text" id="serviceName" class="form-control" placeholder="e.g., Plumbing Repair" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="serviceCategory">Category</label>
+                            <select id="serviceCategory" class="form-control" required>
+                                <option value="">Select a category</option>
+                                <option value="plumbing">Plumbing</option>
+                                <option value="electrical">Electrical</option>
+                                <option value="cleaning">Cleaning</option>
+                                <option value="ac">AC Repair</option>
+                                <option value="carpentry">Carpentry</option>
+                                <option value="painting">Painting</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="servicePrice">Price ($)</label>
+                            <input type="number" id="servicePrice" class="form-control" min="0" step="0.01" placeholder="0.00" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="serviceDuration">Duration (minutes)</label>
+                            <input type="number" id="serviceDuration" class="form-control" min="15" step="15" value="60" required>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="serviceDescription">Description</label>
+                            <textarea id="serviceDescription" class="form-control" placeholder="Describe the service in detail..." required></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="reset" class="btn btn-outline">Clear</button>
+                        <button type="submit" class="btn btn-primary">Add Service</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters">
+                <div class="filter-group">
+                    <select class="filter-select" id="categoryFilter">
+                        <option value="all">All Categories</option>
+                        <option value="plumbing">Plumbing</option>
+                        <option value="electrical">Electrical</option>
+                        <option value="cleaning">Cleaning</option>
+                        <option value="ac">AC Repair</option>
+                        <option value="carpentry">Carpentry</option>
+                        <option value="painting">Painting</option>
+                    </select>
+                    
+                    <select class="filter-select" id="statusFilter">
+                        <option value="all">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+                
+                <div class="search-filter">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search services..." id="serviceSearch">
+                </div>
+            </div>
+
+            <!-- Services Grid -->
+            <div class="services-header">
+                <h2>My Services</h2>
+                <span id="servicesCount">6 services</span>
+            </div>
+            
+            <div class="services-grid" id="servicesContainer">
+                <!-- Services will be dynamically added here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sample services data
+            const services = [
+                {
+                    id: 1,
+                    name: "Plumbing Repair",
+                    category: "plumbing",
+                    price: 89.99,
+                    duration: 60,
+                    description: "Fix leaking pipes, clogged drains, and other plumbing issues with our expert service.",
+                    active: true
+                },
+                {
+                    id: 2,
+                    name: "Electrical Wiring",
+                    category: "electrical",
+                    price: 120.50,
+                    duration: 90,
+                    description: "Professional electrical wiring installation and repair for homes and offices.",
+                    active: true
+                },
+                {
+                    id: 3,
+                    name: "Office Cleaning",
+                    category: "cleaning",
+                    price: 150.00,
+                    duration: 120,
+                    description: "Thorough cleaning service for offices including dusting, vacuuming, and sanitizing.",
+                    active: true
+                },
+                {
+                    id: 4,
+                    name: "AC Maintenance",
+                    category: "ac",
+                    price: 79.99,
+                    duration: 60,
+                    description: "Regular maintenance and cleaning of air conditioning units to ensure optimal performance.",
+                    active: false
+                },
+                {
+                    id: 5,
+                    name: "Carpentry Work",
+                    category: "carpentry",
+                    price: 95.00,
+                    duration: 90,
+                    description: "Custom furniture building, repairs, and other carpentry services.",
+                    active: true
+                },
+                {
+                    id: 6,
+                    name: "Interior Painting",
+                    category: "painting",
+                    price: 200.00,
+                    duration: 180,
+                    description: "Professional interior painting services with high-quality paints and materials.",
+                    active: true
+                }
+            ];
+            
+            const servicesContainer = document.getElementById('servicesContainer');
+            const servicesCount = document.getElementById('servicesCount');
+            const serviceForm = document.getElementById('serviceForm');
+            const toggleFormBtn = document.getElementById('toggleForm');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const statusFilter = document.getElementById('statusFilter');
+            const serviceSearch = document.getElementById('serviceSearch');
+            
+            // Render services
+            function renderServices(servicesToRender) {
+                servicesContainer.innerHTML = '';
+                
+                if (servicesToRender.length === 0) {
+                    servicesContainer.innerHTML = `
+                        <div class="no-services" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--gray);">
+                            <i class="fas fa-tools" style="font-size: 48px; margin-bottom: 15px;"></i>
+                            <h3>No services found</h3>
+                            <p>Try adjusting your filters or add a new service</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                servicesToRender.forEach(service => {
+                    const serviceCard = document.createElement('div');
+                    serviceCard.className = 'service-card';
+                    serviceCard.innerHTML = `
+                        <div class="service-image">
+                            <i class="fas fa-tools fa-3x"></i>
+                        </div>
+                        <div class="service-info">
+                            <div class="service-title">
+                                <h3>${service.name}</h3>
+                                <div class="service-price">$${service.price.toFixed(2)}</div>
+                            </div>
+                            <div class="service-description">${service.description}</div>
+                            <div class="service-meta">
+                                <div class="service-duration">
+                                    <i class="fas fa-clock"></i> ${service.duration} min
+                                </div>
+                                <div class="service-actions">
+                                    <button class="action-btn edit-btn" data-id="${service.id}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn delete-btn" data-id="${service.id}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    <label class="status-toggle">
+                                        <input type="checkbox" ${service.active ? 'checked' : ''} data-id="${service.id}">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    servicesContainer.appendChild(serviceCard);
+                });
+                
+                servicesCount.textContent = ${servicesToRender.length} services;
+                
+                // Add event listeners to action buttons
+                document.querySelectorAll('.edit-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const serviceId = parseInt(this.getAttribute('data-id'));
+                        editService(serviceId);
+                    });
+                });
+                
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const serviceId = parseInt(this.getAttribute('data-id'));
+                        deleteService(serviceId);
+                    });
+                });
+                
+                document.querySelectorAll('.status-toggle input').forEach(toggle => {
+                    toggle.addEventListener('change', function() {
+                        const serviceId = parseInt(this.getAttribute('data-id'));
+                        toggleServiceStatus(serviceId, this.checked);
+                    });
+                });
+            }
+            
+            // Add new service
+            serviceForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const newService = {
+                    id: services.length > 0 ? Math.max(...services.map(s => s.id)) + 1 : 1,
+                    name: document.getElementById('serviceName').value,
+                    category: document.getElementById('serviceCategory').value,
+                    price: parseFloat(document.getElementById('servicePrice').value),
+                    duration: parseInt(document.getElementById('serviceDuration').value),
+                    description: document.getElementById('serviceDescription').value,
+                    active: true
+                };
+                
+                services.push(newService);
+                renderServices(services);
+                serviceForm.reset();
+                
+                // Show success message
+                alert('Service added successfully!');
+            });
+            
+            // Toggle form visibility
+            let formVisible = true;
+            toggleFormBtn.addEventListener('click', function() {
+                formVisible = !formVisible;
+                const form = serviceForm;
+                
+                if (formVisible) {
+                    form.style.display = 'block';
+                    toggleFormBtn.innerHTML = '<i class="fas fa-minus"></i>';
+                } else {
+                    form.style.display = 'none';
+                    toggleFormBtn.innerHTML = '<i class="fas fa-plus"></i>';
+                }
+            });
+            
+            // Edit service
+            function editService(id) {
+                const service = services.find(s => s.id === id);
+                if (service) {
+                    // In a real application, you would populate a form for editing
+                    alert(Editing service: ${service.name});
+                    // For this example, we'll just scroll to the form and prefill it
+                    document.getElementById('serviceName').value = service.name;
+                    document.getElementById('serviceCategory').value = service.category;
+                    document.getElementById('servicePrice').value = service.price;
+                    document.getElementById('serviceDuration').value = service.duration;
+                    document.getElementById('serviceDescription').value = service.description;
+                    
+                    document.querySelector('.add-service-form').scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            }
+            
+            // Delete service
+            function deleteService(id) {
+                if (confirm('Are you sure you want to delete this service?')) {
+                    const index = services.findIndex(s => s.id === id);
+                    if (index !== -1) {
+                        services.splice(index, 1);
+                        renderServices(services);
+                    }
+                }
+            }
+            
+            // Toggle service status
+            function toggleServiceStatus(id, active) {
+                const service = services.find(s => s.id === id);
+                if (service) {
+                    service.active = active;
+                    // In a real application, you would save this change to the server
+                }
+            }
+            
+            // Filter services
+            function filterServices() {
+                const categoryValue = categoryFilter.value;
+                const statusValue = statusFilter.value;
+                const searchValue = serviceSearch.value.toLowerCase();
+                
+                let filteredServices = services;
+                
+                // Filter by category
+                if (categoryValue !== 'all') {
+                    filteredServices = filteredServices.filter(service => service.category === categoryValue);
+                }
+                
+                // Filter by status
+                if (statusValue !== 'all') {
+                    const isActive = statusValue === 'active';
+                    filteredServices = filteredServices.filter(service => service.active === isActive);
+                }
+                
+                // Filter by search term
+                if (searchValue) {
+                    filteredServices = filteredServices.filter(service => 
+                        service.name.toLowerCase().includes(searchValue) || 
+                        service.description.toLowerCase().includes(searchValue)
+                    );
+                }
+                
+                renderServices(filteredServices);
+            }
+            
+            // Add event listeners to filters
+            categoryFilter.addEventListener('change', filterServices);
+            statusFilter.addEventListener('change', filterServices);
+            serviceSearch.addEventListener('input', filterServices);
+            
+            // Initial render
+            renderServices(services);
+        });
+    </script>
+</body>
+</html>

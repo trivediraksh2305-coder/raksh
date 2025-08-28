@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ServicePro - Client Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fb;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: var(--primary);
+            color: white;
+            padding: 20px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sidebar-header h2 i {
+            color: var(--success);
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+        
+        .sidebar-menu li {
+            padding: 10px 20px;
+            margin: 5px 0;
+            border-left: 4px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-menu li:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid var(--success);
+        }
+        
+        .sidebar-menu li.active {
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid var(--success);
+        }
+        
+        .sidebar-menu a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 30px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+        
+        .search-box input {
+            border: none;
+            outline: none;
+            padding: 5px;
+            width: 100%;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        /* Page Title */
+        .page-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .page-title h1 {
+            font-size: 24px;
+            color: var(--dark);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        /* Client Stats */
+        .client-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .stat-info h3 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .stat-info p {
+            color: var(--gray);
+            font-size: 14px;
+        }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .bg-primary { background: rgba(67, 97, 238, 0.2); color: var(--primary); }
+        .bg-success { background: rgba(76, 201, 240, 0.2); color: var(--success); }
+        .bg-warning { background: rgba(247, 37, 133, 0.2); color: var(--warning); }
+        .bg-secondary { background: rgba(63, 55, 201, 0.2); color: var(--secondary); }
+        
+        /* Filters */
+        .filters {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .filter-select {
+            padding: 8px 15px;
+            border-radius: 6px;
+            border: 1px solid var(--light-gray);
+            background: white;
+        }
+        
+        .search-filter {
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 8px 15px;
+            border-radius: 6px;
+            border: 1px solid var(--light-gray);
+            width: 250px;
+        }
+        
+        .search-filter input {
+            border: none;
+            outline: none;
+            padding: 5px;
+            width: 100%;
+        }
+        
+        /* Clients Table */
+        .clients-table-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+        
+        .clients-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .clients-table th, 
+        .clients-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .clients-table th {
+            background-color: var(--light);
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .clients-table th:hover {
+            background-color: var(--light-gray);
+        }
+        
+        .clients-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .client-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .client-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .client-name {
+            font-weight: 500;
+        }
+        
+        .client-email {
+            font-size: 14px;
+            color: var(--gray);
+        }
+        
+        .client-type {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .type-individual { background: rgba(76, 201, 240, 0.2); color: var(--success); }
+        .type-business { background: rgba(67, 97, 238, 0.2); color: var(--primary); }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--gray);
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        
+        .action-btn:hover {
+            color: var(--primary);
+        }
+        
+        /* Client Detail Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            width: 800px;
+            max-width: 90%;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .modal-header h2 {
+            font-size: 20px;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .client-detail {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+        
+        .client-profile {
+            text-align: center;
+        }
+        
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 36px;
+            font-weight: bold;
+            margin: 0 auto 15px;
+        }
+        
+        .client-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .detail-group {
+            margin-bottom: 15px;
+        }
+        
+        .detail-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--gray);
+        }
+        
+        .detail-group span {
+            display: block;
+            padding: 8px;
+            background: var(--light);
+            border-radius: 6px;
+        }
+        
+        .service-history {
+            margin-top: 20px;
+        }
+        
+        .service-item {
+            padding: 10px;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .service-item:last-child {
+            border-bottom: none;
+        }
+        
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .pagination button {
+            padding: 8px 15px;
+            margin: 0 5px;
+            border: 1px solid var(--light-gray);
+            background: white;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+        
+        .pagination button.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 70px;
+            }
+            
+            .sidebar-header h2 span, 
+            .sidebar-menu li a span {
+                display: none;
+            }
+            
+            .sidebar-header h2 {
+                justify-content: center;
+            }
+            
+            .sidebar-menu li {
+                text-align: center;
+                padding: 15px 10px;
+            }
+            
+            .sidebar-menu li a i {
+                font-size: 20px;
+            }
+            
+            .client-detail {
+                grid-template-columns: 1fr;
+            }
+            
+            .client-details {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .filters {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .filter-group {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .search-filter {
+                width: 100%;
+            }
+            
+            .client-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .clients-table {
+                min-width: 700px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-concierge-bell"></i> <span>ServicePro</span></h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="active"><a href="Dashboard.html"><i class="fas fa-home"></i> <span>Dashboard</span></a></li>
+                <li><a href="Appointments.html"><i class="fas fa-calendar-alt"></i> <span>Appointments</span></a></li>
+                <li><a href="Services.html"><i class="fas fa-tools"></i> <span>Services</span></a></li>
+                <li class="active"><a href="Clients.html"><i class="fas fa-users"></i> <span>Clients</span></a></li>
+                <li><a href="Analytics.html"><i class="fas fa-chart-line"></i> <span>Analytics</span></a></li>
+                <li><a href="Earnings.html"><i class="fas fa-money-bill-wave"></i> <span>Earnings</span></a></li>
+                <li><a href="Settings.html"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+                <li><a href="login.html"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search clients...">
+                </div>
+                <div class="user-profile">
+                    <div class="notifications">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="user-info">
+                        <span>John Doe</span>
+                    </div>
+                    <div class="user-img">JD</div>
+                </div>
+            </div>
+
+            <!-- Page Title -->
+            <div class="page-title">
+                <h1>Client Management</h1>
+                <div class="action-buttons">
+                    <button class="btn btn-outline">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                    <button class="btn btn-primary" id="addClientBtn">
+                        <i class="fas fa-plus"></i> Add Client
+                    </button>
+                </div>
+            </div>
+
+            <!-- Client Stats -->
+            <div class="client-stats">
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3>42</h3>
+                        <p>Total Clients</p>
+                    </div>
+                    <div class="stat-icon bg-primary">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3>28</h3>
+                        <p>Individual Clients</p>
+                    </div>
+                    <div class="stat-icon bg-success">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3>14</h3>
+                        <p>Business Clients</p>
+                    </div>
+                    <div class="stat-icon bg-warning">
+                        <i class="fas fa-building"></i>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3>86%</h3>
+                        <p>Retention Rate</p>
+                    </div>
+                    <div class="stat-icon bg-secondary">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters">
+                <div class="filter-group">
+                    <select class="filter-select" id="typeFilter">
+                        <option value="all">All Types</option>
+                        <option value="individual">Individual</option>
+                        <option value="business">Business</option>
+                    </select>
+                    
+                    <select class="filter-select" id="statusFilter">
+                        <option value="all">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+                
+                <div class="search-filter">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search clients..." id="clientSearch">
+                </div>
+            </div>
+
+            <!-- Clients Table -->
+            <div class="clients-table-container">
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Client</th>
+                            <th>Type</th>
+                            <th>Phone</th>
+                            <th>Services</th>
+                            <th>Last Service</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientsTableBody">
+                        <!-- Clients will be dynamically added here -->
+                    </tbody>
+                </table>
+                
+                <!-- Pagination -->
+                <div class="pagination">
+                    <button>&laquo;</button>
+                    <button class="active">1</button>
+                    <button>2</button>
+                    <button>3</button>
+                    <button>&raquo;</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Client Detail Modal -->
+    <div class="modal" id="clientDetailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Client Details</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="client-detail">
+                <div class="client-profile">
+                    <div class="profile-avatar" id="clientAvatar">JD</div>
+                    <h3 id="clientName">John Doe</h3>
+                    <p class="client-type type-individual" id="clientType">Individual</p>
+                </div>
+                <div class="client-info-details">
+                    <div class="client-details">
+                        <div class="detail-group">
+                            <label>Email</label>
+                            <span id="clientEmail">john.doe@example.com</span>
+                        </div>
+                        <div class="detail-group">
+                            <label>Phone</label>
+                            <span id="clientPhone">(555) 123-4567</span>
+                        </div>
+                        <div class="detail-group">
+                            <label>Address</label>
+                            <span id="clientAddress">123 Main St, Anytown, USA</span>
+                        </div>
+                        <div class="detail-group">
+                            <label>Join Date</label>
+                            <span id="clientJoinDate">Jan 15, 2023</span>
+                        </div>
+                    </div>
+                    
+                    <div class="service-history">
+                        <h3>Service History</h3>
+                        <div class="service-item">
+                            <div>
+                                <strong>Plumbing Repair</strong>
+                                <p>Aug 25, 2023</p>
+                            </div>
+                            <div>
+                                <strong>$89.99</strong>
+                                <p>Completed</p>
+                            </div>
+                        </div>
+                        <div class="service-item">
+                            <div>
+                                <strong>Pipe Installation</strong>
+                                <p>Jul 18, 2023</p>
+                            </div>
+                            <div>
+                                <strong>$150.00</strong>
+                                <p>Completed</p>
+                            </div>
+                        </div>
+                        <div class="service-item">
+                            <div>
+                                <strong>Faucet Replacement</strong>
+                                <p>Jun 5, 2023</p>
+                            </div>
+                            <div>
+                                <strong>$75.50</strong>
+                                <p>Completed</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sample clients data
+            const clients = [
+                {
+                    id: 1,
+                    name: "Sarah Johnson",
+                    email: "sarah.johnson@example.com",
+                    phone: "(555) 123-4567",
+                    type: "individual",
+                    services: 5,
+                    lastService: "Aug 25, 2023",
+                    status: "active",
+                    address: "123 Main St, Anytown, USA",
+                    joinDate: "Mar 12, 2022"
+                },
+                {
+                    id: 2,
+                    name: "Tech Solutions Inc.",
+                    email: "contact@techsolutions.com",
+                    phone: "(555) 987-6543",
+                    type: "business",
+                    services: 12,
+                    lastService: "Aug 22, 2023",
+                    status: "active",
+                    address: "456 Business Ave, Suite 300, Anytown, USA",
+                    joinDate: "Jan 5, 2021"
+                },
+                {
+                    id: 3,
+                    name: "Michael Brown",
+                    email: "michael.brown@example.com",
+                    phone: "(555) 456-7890",
+                    type: "individual",
+                    services: 3,
+                    lastService: "Aug 20, 2023",
+                    status: "active",
+                    address: "789 Oak Lane, Anytown, USA",
+                    joinDate: "Jun 18, 2023"
+                },
+                {
+                    id: 4,
+                    name: "Emily Davis",
+                    email: "emily.davis@example.com",
+                    phone: "(555) 234-5678",
+                    type: "individual",
+                    services: 7,
+                    lastService: "Aug 18, 2023",
+                    status: "active",
+                    address: "321 Pine Street, Anytown, USA",
+                    joinDate: "Nov 3, 2022"
+                },
+                {
+                    id: 5,
+                    name: "Premium Offices",
+                    email: "info@premiumoffices.com",
+                    phone: "(555) 876-5432",
+                    type: "business",
+                    services: 9,
+                    lastService: "Aug 15, 2023",
+                    status: "active",
+                    address: "100 Corporate Blvd, Anytown, USA",
+                    joinDate: "Feb 14, 2022"
+                },
+                {
+                    id: 6,
+                    name: "Robert Wilson",
+                    email: "robert.wilson@example.com",
+                    phone: "(555) 345-6789",
+                    type: "individual",
+                    services: 2,
+                    lastService: "Aug 10, 2023",
+                    status: "active",
+                    address: "654 Cedar Road, Anytown, USA",
+                    joinDate: "Jul 22, 2023"
+                }
+            ];
+            
+            const clientsTableBody = document.getElementById('clientsTableBody');
+            const clientDetailModal = document.getElementById('clientDetailModal');
+            const closeModalBtn = document.querySelector('.close-modal');
+            const addClientBtn = document.getElementById('addClientBtn');
+            const typeFilter = document.getElementById('typeFilter');
+            const statusFilter = document.getElementById('statusFilter');
+            const clientSearch = document.getElementById('clientSearch');
+            
+            // Render clients table
+            function renderClients(clientsToRender) {
+                clientsTableBody.innerHTML = '';
+                
+                if (clientsToRender.length === 0) {
+                    clientsTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 30px; color: var(--gray);">
+                                <i class="fas fa-users" style="font-size: 48px; margin-bottom: 15px; display: block;"></i>
+                                <h3>No clients found</h3>
+                                <p>Try adjusting your filters or add a new client</p>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                clientsToRender.forEach(client => {
+                    const initials = client.name.split(' ').map(word => word[0]).join('').toUpperCase();
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>
+                            <div class="client-info">
+                                <div class="client-avatar">${initials}</div>
+                                <div>
+                                    <div class="client-name">${client.name}</div>
+                                    <div class="client-email">${client.email}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="client-type type-${client.type}">${client.type.charAt(0).toUpperCase() + client.type.slice(1)}</span></td>
+                        <td>${client.phone}</td>
+                        <td>${client.services} services</td>
+                        <td>${client.lastService}</td>
+                        <td>
+                            <button class="action-btn view-btn" data-id="${client.id}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn edit-btn" data-id="${client.id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn delete-btn" data-id="${client.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    clientsTableBody.appendChild(row);
+                });
+                
+                // Add event listeners to action buttons
+                document.querySelectorAll('.view-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const clientId = parseInt(this.getAttribute('data-id'));
+                        viewClientDetails(clientId);
+                    });
+                });
+                
+                document.querySelectorAll('.edit-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const clientId = parseInt(this.getAttribute('data-id'));
+                        editClient(clientId);
+                    });
+                });
+                
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const clientId = parseInt(this.getAttribute('data-id'));
+                        deleteClient(clientId);
+                    });
+                });
+            }
+            
+            // View client details
+            function viewClientDetails(id) {
+                const client = clients.find(c => c.id === id);
+                if (client) {
+                    const initials = client.name.split(' ').map(word => word[0]).join('').toUpperCase();
+                    document.getElementById('clientAvatar').textContent = initials;
+                    document.getElementById('clientName').textContent = client.name;
+                    document.getElementById('clientEmail').textContent = client.email;
+                    document.getElementById('clientPhone').textContent = client.phone;
+                    document.getElementById('clientAddress').textContent = client.address;
+                    document.getElementById('clientJoinDate').textContent = client.joinDate;
+                    
+                    const typeElement = document.getElementById('clientType');
+                    typeElement.textContent = client.type.charAt(0).toUpperCase() + client.type.slice(1);
+                    typeElement.className = client-type type-${client.type};
+                    
+                    clientDetailModal.style.display = 'flex';
+                }
+            }
+            
+            // Edit client
+            function editClient(id) {
+                const client = clients.find(c => c.id === id);
+                if (client) {
+                    alert(Editing client: ${client.name});
+                    // In a real application, you would open a form for editing
+                }
+            }
+            
+            // Delete client
+            function deleteClient(id) {
+                if (confirm('Are you sure you want to delete this client?')) {
+                    const index = clients.findIndex(c => c.id === id);
+                    if (index !== -1) {
+                        clients.splice(index, 1);
+                        renderClients(clients);
+                    }
+                }
+            }
+            
+            // Add new client
+            addClientBtn.addEventListener('click', function() {
+                alert('Add new client form would open here.');
+                // In a real application, you would open a form for adding a new client
+            });
+            
+            // Close modal
+            closeModalBtn.addEventListener('click', function() {
+                clientDetailModal.style.display = 'none';
+            });
+            
+            // Close modal if clicked outside
+            window.addEventListener('click', function(event) {
+                if (event.target === clientDetailModal) {
+                    clientDetailModal.style.display = 'none';
+                }
+            });
+            
+            // Filter clients
+            function filterClients() {
+                const typeValue = typeFilter.value;
+                const statusValue = statusFilter.value;
+                const searchValue = clientSearch.value.toLowerCase();
+                
+                let filteredClients = clients;
+                
+                // Filter by type
+                if (typeValue !== 'all') {
+                    filteredClients = filteredClients.filter(client => client.type === typeValue);
+                }
+                
+                // Filter by status
+                if (statusValue !== 'all') {
+                    filteredClients = filteredClients.filter(client => client.status === statusValue);
+                }
+                
+                // Filter by search term
+                if (searchValue) {
+                    filteredClients = filteredClients.filter(client => 
+                        client.name.toLowerCase().includes(searchValue) || 
+                        client.email.toLowerCase().includes(searchValue) ||
+                        client.phone.toLowerCase().includes(searchValue)
+                    );
+                }
+                
+                renderClients(filteredClients);
+            }
+            
+            // Add event listeners to filters
+            typeFilter.addEventListener('change', filterClients);
+            statusFilter.addEventListener('change', filterClients);
+            clientSearch.addEventListener('input', filterClients);
+            
+            // Initial render
+            renderClients(clients);
+        });
+    </script>
+</body>
+</html>

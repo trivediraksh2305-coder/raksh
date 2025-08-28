@@ -1,0 +1,13 @@
+<!-- Add a logout button somewhere in your navigation -->
+<button onclick="logout()">Logout</button>
+
+<script>
+function logout() {
+    // Clear any user data from storage
+    localStorage.removeItem('userToken');
+    sessionStorage.removeItem('userData');
+    
+    // Redirect to login page with logout parameter
+    window.location.href = 'login.html?logout=true';
+}
+</script>

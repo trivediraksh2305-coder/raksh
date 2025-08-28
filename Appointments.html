@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ServicePro - Appointment Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fb;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: var(--primary);
+            color: white;
+            padding: 20px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sidebar-header h2 i {
+            color: var(--success);
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+        
+        .sidebar-menu li {
+            padding: 10px 20px;
+            margin: 5px 0;
+            border-left: 4px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-menu li:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid var(--success);
+        }
+        
+        .sidebar-menu li.active {
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid var(--success);
+        }
+        
+        .sidebar-menu a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 30px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+        
+        .search-box input {
+            border: none;
+            outline: none;
+            padding: 5px;
+            width: 100%;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        /* Page Title */
+        .page-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .page-title h1 {
+            font-size: 24px;
+            color: var(--dark);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        /* Filters */
+        .filters {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .filter-select {
+            padding: 8px 15px;
+            border-radius: 6px;
+            border: 1px solid var(--light-gray);
+            background: white;
+        }
+        
+        .view-toggle {
+            display: flex;
+            border: 1px solid var(--light-gray);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .view-toggle button {
+            padding: 8px 15px;
+            border: none;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .view-toggle button.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        /* Calendar View */
+        .calendar-view {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .calendar-nav {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .calendar-nav button {
+            background: var(--light);
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+        
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: var(--gray);
+        }
+        
+        .calendar-day {
+            height: 100px;
+            border: 1px solid var(--light-gray);
+            border-radius: 6px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .calendar-day:hover {
+            background: var(--light);
+        }
+        
+        .calendar-day .date {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .calendar-day.today {
+            background: rgba(67, 97, 238, 0.1);
+            border-color: var(--primary);
+        }
+        
+        .calendar-day.has-appointments {
+            background: rgba(76, 201, 240, 0.1);
+        }
+        
+        .appointment-badge {
+            font-size: 12px;
+            padding: 2px 5px;
+            border-radius: 4px;
+            margin-top: 5px;
+            display: inline-block;
+        }
+        
+        /* Appointment List */
+        .appointment-list {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .appointment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .appointment-item:last-child {
+            border-bottom: none;
+        }
+        
+        .appointment-info {
+            flex: 1;
+        }
+        
+        .appointment-info h3 {
+            margin-bottom: 5px;
+        }
+        
+        .appointment-meta {
+            display: flex;
+            gap: 15px;
+            color: var(--gray);
+            font-size: 14px;
+        }
+        
+        .appointment-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-confirmed { background: rgba(76, 201, 240, 0.2); color: var(--success); }
+        .status-pending { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
+        .status-completed { background: rgba(40, 167, 69, 0.2); color: #28a745; }
+        .status-cancelled { background: rgba(220, 53, 69, 0.2); color: #dc3545; }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            width: 500px;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .modal-header h2 {
+            font-size: 20px;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--light-gray);
+            border-radius: 6px;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 70px;
+            }
+            
+            .sidebar-header h2 span, 
+            .sidebar-menu li a span {
+                display: none;
+            }
+            
+            .sidebar-header h2 {
+                justify-content: center;
+            }
+            
+            .sidebar-menu li {
+                text-align: center;
+                padding: 15px 10px;
+            }
+            
+            .sidebar-menu li a i {
+                font-size: 20px;
+            }
+            
+            .filters {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .filter-group {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .calendar-grid {
+                grid-template-columns: repeat(1, 1fr);
+            }
+            
+            .appointment-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .appointment-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+            
+            .modal-content {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-concierge-bell"></i> <span>ServicePro</span></h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="Dashboard.html"><i class="fas fa-home"></i> <span>Dashboard</span></a></li>
+                <li class="active"><a href="Appointments.html"><i class="fas fa-home"></i> <span>Appointments</span></a></li>
+                <li><a href="Services.html"><i class="fas fa-tools"></i> <span>Services</span></a></li>
+                <li><a href="Clients.html"><i class="fas fa-users"></i> <span>Clients</span></a></li>
+                <li><a href="Analytics.html"><i class="fas fa-chart-line"></i> <span>Analytics</span></a></li>
+                <li><a href="Earnings.html"><i class="fas fa-money-bill-wave"></i> <span>Earnings</span></a></li>
+                <li><a href="Settings.html"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+                <li><a href="login.html"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+            </ul>
+        </div>
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search appointments...">
+                </div>
+                <div class="user-profile">
+                    <div class="notifications">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="user-info">
+                        <span>John Doe</span>
+                    </div>
+                    <div class="user-img">JD</div>
+                </div>
+            </div>
+
+            <!-- Page Title -->
+            <div class="page-title">
+                <h1>Appointment Management</h1>
+                <div class="action-buttons">
+                    <button class="btn btn-outline">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                    <button class="btn btn-primary" id="addAppointmentBtn">
+                        <i class="fas fa-plus"></i> New Appointment
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters">
+                <div class="filter-group">
+                    <select class="filter-select">
+                        <option>All Services</option>
+                        <option>Plumbing</option>
+                        <option>Electrical</option>
+                        <option>Cleaning</option>
+                        <option>AC Repair</option>
+                    </select>
+                    <select class="filter-select">
+                        <option>All Status</option>
+                        <option>Confirmed</option>
+                        <option>Pending</option>
+                        <option>Completed</option>
+                        <option>Cancelled</option>
+                    </select>
+                    <input type="date" class="filter-select">
+                </div>
+                <div class="view-toggle">
+                    <button class="active"><i class="fas fa-calendar"></i></button>
+                    <button><i class="fas fa-list"></i></button>
+                </div>
+            </div>
+
+            <!-- Calendar View -->
+            <div class="calendar-view">
+                <div class="calendar-header">
+                    <h2>August 2023</h2>
+                    <div class="calendar-nav">
+                        <button><i class="fas fa-chevron-left"></i></button>
+                        <span>Today</span>
+                        <button><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+                
+                <div class="calendar-weekdays">
+                    <div>Sun</div>
+                    <div>Mon</div>
+                    <div>Tue</div>
+                    <div>Wed</div>
+                    <div>Thu</div>
+                    <div>Fri</div>
+                    <div>Sat</div>
+                </div>
+                
+                <div class="calendar-grid">
+                    <!-- Calendar days will be generated here -->
+                    <div class="calendar-day">
+                        <div class="date">30</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="date">31</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="date">1</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="date">2</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="date">3</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="date">4</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="date">5</div>
+                    </div>
+                    <!-- More days would go here in a real implementation -->
+                    <div class="calendar-day has-appointments">
+                        <div class="date">6</div>
+                        <span class="appointment-badge status-confirmed">2 Appointments</span>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="date">7</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="date">8</div>
+                    </div>
+                    <div class="calendar-day has-appointments">
+                        <div class="date">9</div>
+                        <span class="appointment-badge status-pending">1 Appointment</span>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="date">10</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="date">11</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="date">12</div>
+                    </div>
+                    <!-- More days would go here in a real implementation -->
+                    <div class="calendar-day today">
+                        <div class="date">25</div>
+                        <span class="appointment-badge status-confirmed">3 Appointments</span>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="date">26</div>
+                    </div>
+                    <div class="calendar-day has-appointments">
+                        <div class="date">27</div>
+                        <span class="appointment-badge status-confirmed">2 Appointments</span>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="date">28</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="date">29</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="date">30</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="date">31</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Appointment List -->
+            <div class="appointment-list">
+                <h2>Today's Appointments</h2>
+                
+                <div class="appointment-item">
+                    <div class="appointment-info">
+                        <h3>Plumbing Repair</h3>
+                        <div class="appointment-meta">
+                            <span><i class="fas fa-user"></i> Sarah Johnson</span>
+                            <span><i class="fas fa-map-marker-alt"></i> 123 Main St, Apt 4B</span>
+                            <span><i class="fas fa-clock"></i> 10:00 AM - 11:30 AM</span>
+                        </div>
+                    </div>
+                    <div class="appointment-actions">
+                        <span class="status-badge status-confirmed">Confirmed</span>
+                        <button class="btn btn-outline">Details</button>
+                    </div>
+                </div>
+                
+                <div class="appointment-item">
+                    <div class="appointment-info">
+                        <h3>Office Cleaning</h3>
+                        <div class="appointment-meta">
+                            <span><i class="fas fa-building"></i> Tech Solutions Inc.</span>
+                            <span><i class="fas fa-map-marker-alt"></i> 456 Business Ave, Suite 300</span>
+                            <span><i class="fas fa-clock"></i> 1:30 PM - 3:00 PM</span>
+                        </div>
+                    </div>
+                    <div class="appointment-actions">
+                        <span class="status-badge status-confirmed">Confirmed</span>
+                        <button class="btn btn-outline">Details</button>
+                    </div>
+                </div>
+                
+                <div class="appointment-item">
+                    <div class="appointment-info">
+                        <h3>Electrical Wiring</h3>
+                        <div class="appointment-meta">
+                            <span><i class="fas fa-user"></i> Emily Davis</span>
+                            <span><i class="fas fa-map-marker-alt"></i> 789 Oak Lane</span>
+                            <span><i class="fas fa-clock"></i> 3:45 PM - 5:15 PM</span>
+                        </div>
+                    </div>
+                    <div class="appointment-actions">
+                        <span class="status-badge status-pending">Pending</span>
+                        <button class="btn btn-outline">Details</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Appointment Modal -->
+    <div class="modal" id="addAppointmentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Schedule New Appointment</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="appointmentForm">
+                <div class="form-group">
+                    <label for="serviceType">Service Type</label>
+                    <select id="serviceType" class="form-control" required>
+                        <option value="">Select a service</option>
+                        <option value="plumbing">Plumbing</option>
+                        <option value="electrical">Electrical</option>
+                        <option value="cleaning">Cleaning</option>
+                        <option value="ac">AC Repair/Maintenance</option>
+                        <option value="carpentry">Carpentry</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="client">Client</label>
+                    <select id="client" class="form-control" required>
+                        <option value="">Select a client</option>
+                        <option value="1">Sarah Johnson</option>
+                        <option value="2">Michael Brown</option>
+                        <option value="3">Emily Davis</option>
+                        <option value="4">Tech Solutions Inc.</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="appointmentDate">Date</label>
+                    <input type="date" id="appointmentDate" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="appointmentTime">Time</label>
+                    <input type="time" id="appointmentTime" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="duration">Duration (minutes)</label>
+                    <input type="number" id="duration" class="form-control" value="60" min="15" step="15" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="notes">Notes</label>
+                    <textarea id="notes" class="form-control" rows="3"></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Schedule Appointment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Modal functionality
+            const modal = document.getElementById('addAppointmentModal');
+            const addBtn = document.getElementById('addAppointmentBtn');
+            const closeBtn = document.querySelector('.close-modal');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const form = document.getElementById('appointmentForm');
+            
+            // Open modal
+            addBtn.addEventListener('click', function() {
+                modal.style.display = 'flex';
+            });
+            
+            // Close modal
+            function closeModal() {
+                modal.style.display = 'none';
+            }
+            
+            closeBtn.addEventListener('click', closeModal);
+            cancelBtn.addEventListener('click', closeModal);
+            
+            // Close modal if clicked outside
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    closeModal();
+                }
+            });
+            
+            // Form submission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                // Here you would typically send data to the server
+                alert('Appointment scheduled successfully!');
+                closeModal();
+                form.reset();
+            });
+            
+            // View toggle buttons
+            const viewButtons = document.querySelectorAll('.view-toggle button');
+            viewButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    viewButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Here you would toggle between calendar and list views
+                    // This is just a simple example
+                    if (this.querySelector('i').classList.contains('fa-list')) {
+                        document.querySelector('.calendar-view').style.display = 'none';
+                        document.querySelector('.appointment-list').style.display = 'block';
+                    } else {
+                        document.querySelector('.calendar-view').style.display = 'block';
+                        document.querySelector('.appointment-list').style.display = 'block';
+                    }
+                });
+            });
+            
+            // Calendar navigation (simplified)
+            const calendarNav = document.querySelectorAll('.calendar-nav button');
+            calendarNav.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Here you would implement actual calendar navigation
+                    alert('Calendar navigation would be implemented here');
+                });
+            });
+            
+            // Calendar day click
+            const calendarDays = document.querySelectorAll('.calendar-day');
+            calendarDays.forEach(day => {
+                day.addEventListener('click', function() {
+                    // Set the date in the form when creating a new appointment
+                    const date = this.querySelector('.date').textContent;
+                    document.getElementById('appointmentDate').value = 2023-08-${date.padStart(2, '0')};
+                    modal.style.display = 'flex';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
